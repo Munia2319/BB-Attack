@@ -1,0 +1,24 @@
+# === DATA FILES ===
+data/
+*.tar.gz
+*.pt
+*.npz
+*.npy
+
+# === MODEL CHECKPOINTS ===
+models/pretrained/
+*.ckpt
+*.pth
+
+# === OUTPUTS ===
+outputs/logs/
+outputs/adversarial_images/
+outputs/eval/
+
+# === PYTHON COMPILED ===
+__pycache__/
+*.pyc
+
+# === SYSTEM FILES ===
+.DS_Store
+*.swp

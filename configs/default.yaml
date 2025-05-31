@@ -1,0 +1,50 @@
+# Dataset
+# Add this line near the top (global config)
+dataset: cifar10
+dataset_path: /home/mmunia/stba-black-box/data
+threat_model: Linf
+robustbench_cache: /home/mmunia/stba-black-box/models/pretrained
+
+# Model list: supports both robustbench and torchvision/custom
+model_list:
+  - name: Wong2020Fast
+    type: robust
+  - name: Zhang2019Theoretically
+    type: robust
+  - name: Wang2020Improving
+    type: robust
+  - name: Sehwag2020Hydra
+    type: robust
+  - name: ResNet56
+    type: normal
+  - name: VGG19
+    type: normal
+  - name: MobileNetV2
+    type: normal
+  - name: ShuffleNetV2
+    type: normal
+  - name: ResNet-56
+    type: normal
+
+# decomposition
+blur_kernel_size: 3
+blur_sigma: 1.0
+interp_mode: bilinear
+padding_mode: border
+align_corners: true
+
+
+# Optimization
+lr: 0.1
+lambda_: 5
+sigma: 0.5       # Standard deviation for sampling flow field
+nsample: 20      # Number of flow samples per iteration
+adjustnum: 20    # How often to increase the flow budget
+qmax: 10000     # Max queries per image
+max_images: 10
+flow_budget: 0.1  # Initial flow budget per image
+
+# Output paths (base only; model-specific folders will be auto-created)
+save_dir: /home/mmunia/stba-black-box/outputs/adversarial_images 
+log_dir: /home/mmunia/stba-black-box/outputs/logs
+eval_dir: /home/mmunia/stba-black-box/outputs/eval
