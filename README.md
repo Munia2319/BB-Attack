@@ -11,11 +11,11 @@ This repository presents a novel **Black-Box Adversarial Attack** framework that
 
 Here is a visual overview of the folder structure used in this project:
 
-![Project Directory Structure](project_structure.txt)
+![Project Directory Structure](directory.png)
 
 
 ```
-
+```
 .
 ├── configs
 │   └── default.yaml
