@@ -7,7 +7,12 @@
 
 This repository presents a novel **Black-Box Adversarial Attack** framework that targets defended models with minimal internal access, using techniques like frequency decomposition and spatial transformation. This attack is designed to be query-efficient and model-agnostic.
 
-## 📁 Project Structure
+## 🗂️ Project Structure
+
+Here is a visual overview of the folder structure used in this project:
+
+![Project Directory Structure](project_structure.txt)
+
 
 ```
 
