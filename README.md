@@ -1,4 +1,4 @@
-Thanks! Here's the complete `README.md` written in Markdown format for your GitHub repository: [https://github.com/Munia2319/BB-Attack](https://github.com/Munia2319/BB-Attack)
+
 
 ---
 
@@ -11,18 +11,29 @@ This repository presents a novel **Black-Box Adversarial Attack** framework that
 
 ```
 
-BB-Attack/
-├── configs/           # YAML config files for various experiments
-├── models/            # Wrappers and model loading utilities
-├── stba/              # STBA attack core implementation
-│   ├── frequency.py   # Image decomposition (high/low frequency)
-│   ├── flow\_transform.py # Spatial transformations
-│   ├── loss.py        # Custom loss functions
-│   └── attacker.py    # STBA attack main logic
-├── ev.py              # Evaluation script (SSIM, LPIPS, etc.)
-├── run\_attack.sh      # Example shell script to run the attack
-├── requirements.txt   # Python dependencies
-└── README.md          # Project documentation
+.
+├── configs
+│   └── default.yaml
+├── data
+├── models
+│   ├── load_models.py
+│   ├── pretrained
+│   ├── __pycache__
+│   └── wrapper.py
+├── outputs
+│   ├── adversarial_images
+│   ├── eval
+│   └── logs
+├── README.md
+├── requirements.txt
+└── stba
+    ├── attacker.py
+    ├── evaluation.py
+    ├── flow_transform.py
+    ├── image_decomposition.py
+    ├── loss.py
+    ├── main.py
+    └── __pycache__
 
 ````
 
@@ -49,59 +60,108 @@ source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 pip install -r requirements.txt
 ````
 
-##  How to Run the Attack
+Got it! Here's the revised **README section** in Markdown where `evaluation.py` runs **automatically** after the attack (as in your pipeline). This assumes you've already integrated that step in `main.py` or `attacker.run()`.
 
-### 📄 Step 1: Modify the config
+---
 
-Open or create a `.yaml` config file in the `configs/` directory. A typical config includes:
+````markdown
+## 🚀 Running the Attack
 
-```yaml
-model_name: 'Wong2020Fast'
-qmax: 10000
-lr: 0.01
-lambda_: 0.1
-sigma: 0.05
-nsample: 20
-adjustnum: 3
-output_dir: 'output/Wong2020Fast/'
-```
+### 🧪 Option 1: Using the `run_attack.sh` Script (Recommended)
 
-###  Step 2: Run the attack
+Before launching the attack, you can customize the parameters:
+
+#### 1️⃣ Edit Parameters
+
+Open the file and update the values to your needs:
 
 ```bash
-python stba/main.py --config configs/your_config.yaml
-```
+nano run_attack.sh
+````
 
-You can also use the bash script for reproducibility:
-
-```bash
-bash run_attack.sh Wong2020Fast configs/wong.yaml
-```
-
-### Step 3: Run Evaluation
+Example snippet:
 
 ```bash
-python ev.py --result_dir output/Wong2020Fast/
+export CUDA_VISIBLE_DEVICES=2
+python stba/main.py \
+  --config configs/default.yaml \
+  --model_name Zhang2019Theoretically \
+  --model_type robust \
+  --max_images 10 \
+  --lr 0.01 \
+  --lambda_ 5 \
+  --sigma 0.05 \
+  --qmax 10000 \
+  --nsample 20 \
+  --adjustnum 3
 ```
 
-This will save SSIM, LPIPS, and fooling rate statistics into CSV, JSON, and image files.
+#### 2️⃣ Run the Attack
 
-## Metrics Reported
+Make the script executable (only once):
 
-* **SSIM** – Structural similarity index
-* **LPIPS** – Learned perceptual image patch similarity
-* **Fooling Rate** – Attack success rate
-
-Example output:
-
-```
-Average SSIM  : 0.9940
-Average LPIPS : 0.0027
-Fooling Rate  : 89.4%
+```bash
+chmod +x run_attack.sh
 ```
 
+Then execute it:
 
-
+```bash
+./run_attack.sh
 ```
+
+💡 Or simply:
+
+```bash
+bash run_attack.sh
+```
+
+The script will:
+
+* Run the attack using your config and parameters
+* Automatically evaluate the results (SSIM, LPIPS, fooling rate)
+* Save everything to `outputs/adversarial_images/` and `outputs/eval/`
+
+---
+
+### Option 2: Run Manually (Single Command)
+
+You can also run it directly from the terminal:
+
+```bash
+CUDA_VISIBLE_DEVICES=2 python stba/main.py \
+  --config configs/default.yaml \
+  --model_name Zhang2019Theoretically \
+  --model_type robust \
+  --max_images 10 \
+  --lr 0.01 \
+  --lambda_ 5 \
+  --sigma 0.05 \
+  --qmax 10000 \
+  --nsample 20 \
+  --adjustnum 3
+```
+
+Evaluation will still be triggered automatically at the end.
+
+---
+
+
+
+This will:
+
+* Load and override the YAML config
+* Initialize the model
+* Run the STBA black-box attack
+* Save adversarial examples to `outputs/adversarial_images/`
+
+Outputs:
+
+* **SSIM**
+* **LPIPS**
+* **Fooling Rate**
+  → All saved in `outputs/eval/` directory
+
+---
 
 
