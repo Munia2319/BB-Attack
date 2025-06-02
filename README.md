@@ -130,9 +130,6 @@ CUDA_VISIBLE_DEVICES=2 python stba/main.py \
   --adjustnum 3
 ```
 
-Evaluation will still be triggered automatically at the end.
-
----
 
 The script will:
 
