@@ -2,7 +2,7 @@
 
 ---
 
-# BB-Attack: A Novel Black-Box Adversarial Attack Framework
+# A Novel Black-Box Adversarial Attack Framework
 
 This repository presents a novel **Black-Box Adversarial Attack** framework that targets defended models with minimal internal access, using techniques like frequency decomposition and spatial transformation. This attack is designed to be query-efficient and model-agnostic.
 
