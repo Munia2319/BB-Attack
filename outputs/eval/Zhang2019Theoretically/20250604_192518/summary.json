@@ -1,0 +1,9 @@
+{
+    "model": "Zhang2019Theoretically",
+    "success_rate": 34.2,
+    "avg_queries": 139.3187134502924,
+    "avg_ssim": 0.9001761078834534,
+    "avg_lpips": 0.026069378478953627,
+    "avg_l2": 0.9203751542270183,
+    "avg_linf": 0.08284405263513327
+}

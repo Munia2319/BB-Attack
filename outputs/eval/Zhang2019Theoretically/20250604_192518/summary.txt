@@ -1,0 +1,9 @@
+Model: Zhang2019Theoretically
+Total images: 1000
+Successful attacks: 342
+Success rate: 34.20%
+Average queries: 139.32
+Average SSIM: 0.9002
+Average LPIPS: 0.0261
+Average L2 norm: 0.9204
+Average Linf norm: 0.0828
