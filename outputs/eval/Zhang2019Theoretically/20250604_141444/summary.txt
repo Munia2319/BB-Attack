@@ -1,0 +1,26 @@
+Model: Zhang2019Theoretically
+Total images: 1000
+Successful attacks: 180
+Success rate: 18.00%
+Average queries: 29.44
+Average SSIM: 0.9872
+Average LPIPS: 0.0026
+Average L2 norm: 0.1674
+Average Linf norm: 0.0236
+#!/bin/bash
+
+# Set the GPU to use
+export CUDA_VISIBLE_DEVICES=2
+
+# Run STBA attack with full parameter list
+python main.py \
+  --config /home/mmunia/extra/BB-Attack/configs/default.yaml\
+  --model_name Zhang2019Theoretically \
+  --model_type robust \
+  --max_images 1000 \
+  --lr 0.1 \
+  --lambda_ 5 \
+  --sigma 0.2 \
+  --qmax 1000 \
+  --nsample 10 \
+  --adjustnum 20

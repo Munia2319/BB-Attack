@@ -35,6 +35,15 @@ class STBAttacker:
         self.loader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     def run(self, max_images=None):
+        # ✅ Step 0: Define small translations for TI attack (new for TI-STBA)
+        shift_set = [
+            (0, 0),   # original
+            (3, 0),   # right
+            (-3, 0),  # left
+            (0, 3),   # down
+            (0, -3)   # up
+        ]
+
         # Step 2: Set up output directories
         save_dir = self.config["save_dir"]
         os.makedirs(save_dir, exist_ok=True)
@@ -88,31 +97,46 @@ class STBAttacker:
 
                 for i in range(self.nsample):
                     f_sample = mu + self.sigma * epsilons[i:i+1]
+                    #f_sample = torch.clamp(f_sample, -flow_budget, flow_budget)
 
-                    x_high_warped = apply_flow_to_high_freq(
-                        x_high, f_sample,
-                        mode=self.config.get("interp_mode", "bilinear"),
-                        padding_mode=self.config.get("padding_mode", "border"),
-                        align_corners=self.config.get("align_corners", True))
+                    # ✅ TI-STBA core logic: average loss over multiple shifted versions of x_high
+                    total_loss = 0.0
+                    for dx, dy in shift_set:
+                        # ✅ Shift x_high spatially using torch.roll
+                        x_shifted = torch.roll(x_high, shifts=(dy, dx), dims=(2, 3))
 
-                    x_adv = torch.clamp(x_low + x_high_warped, 0, 1)
-                    logits = self.model.query(x_adv)
+                        # Apply spatial flow to the shifted high-frequency image
+                        x_high_warped = apply_flow_to_high_freq(
+                            x_shifted, f_sample,
+                            mode=self.config.get("interp_mode", "bilinear"),
+                            padding_mode=self.config.get("padding_mode", "border"),
+                            align_corners=self.config.get("align_corners", True))
 
-                    loss, _, _ = compute_total_loss(logits, label, f_sample, self.lambda_)
-                    loss_list.append(loss.item())
+                        x_adv = torch.clamp(x_low + x_high_warped, 0, 1)
+                        logits = self.model.query(x_adv)
 
-                    # Step 7: Early success check
-                    if torch.argmax(logits, dim=1).item() != label.item():
-                        print(f"[\u2713] Early success (step {step}, sample {i}, queries: {self.model.query_count})")
-                        success = True
-                        total_queries.append(self.model.query_count)
-                        success_count += 1
-                        final_adv = x_adv.squeeze().detach().cpu()
+                        # Compute loss for this shifted version
+                        loss, _, _ = compute_total_loss(logits, label, f_sample, self.lambda_)
+                        total_loss += loss
 
-                        out_path = os.path.join(save_dir, f"adv_{idx}.png")
-                        vutils.save_image(x_adv, out_path)
-                        print(f"Saved to {out_path}")
+                        # ✅ Early success check for any shifted version
+                        if torch.argmax(logits, dim=1).item() != label.item():
+                            print(f"[✓] Early success (step {step}, sample {i}, queries: {self.model.query_count})")
+                            success = True
+                            total_queries.append(self.model.query_count)
+                            success_count += 1
+                            final_adv = x_adv.squeeze().detach().cpu()
+                            out_path = os.path.join(save_dir, f"adv_{idx}.png")
+                            vutils.save_image(x_adv, out_path)
+                            print(f"Saved to {out_path}")
+                            break
+
+                    if success:
                         break
+
+                    # ✅ Average the loss across all shifts
+                    avg_loss = total_loss / len(shift_set)
+                    loss_list.append(avg_loss.item())
 
                 if success:
                     break
@@ -148,7 +172,7 @@ class STBAttacker:
                     final_pred = torch.argmax(final_logits, dim=1).item()
 
                 if final_pred != label:
-                    print(f"[\u2713] Success (final attempt, queries: {self.model.query_count})")
+                    print(f"[✓] Success (final attempt, queries: {self.model.query_count})")
                     success = True
                     total_queries.append(self.model.query_count)
                     success_count += 1
@@ -157,14 +181,12 @@ class STBAttacker:
                     print(f"Saved to {out_path}")
                     final_adv = x_adv_final.squeeze().detach().cpu()
                 else:
-                    print("[-] Failed on final clipped image.")
+                    print("[-] Still Failed on final clipped image.")
                     total_queries.append(self.query_limit)
                     final_adv = x_orig.squeeze().detach().cpu()
             else:
-                #final_pred = torch.argmax(self.model.model(final_adv.unsqueeze(0).to(self.device)), dim=1).item()
                 with torch.no_grad():
                     final_pred = torch.argmax(self.model.model(final_adv.unsqueeze(0).to(self.device)), dim=1).item()
-
 
             # Step 13: Append logs
             original_images.append(x_orig.squeeze().detach().cpu())

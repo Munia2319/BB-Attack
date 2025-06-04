@@ -11,9 +11,15 @@ models/pretrained/
 *.pth
 
 # === OUTPUTS ===
-outputs/logs/
+
 outputs/adversarial_images/
-outputs/eval/
+outputs/**/*.png
+outputs/**/*.pt
+
+# === Still track other files in outputs/ (e.g., .txt, .json, .csv, etc.) ===
+!outputs/**/*
+!outputs/**/.gitkeep
+
 
 # === PYTHON COMPILED ===
 __pycache__/
