@@ -45,6 +45,6 @@ max_images: 10
 flow_budget: 0.1  # Initial flow budget per image
 
 # Output paths (base only; model-specific folders will be auto-created)
-save_dir: /home/mmunia/stba-black-box/outputs/adversarial_images 
-log_dir: /home/mmunia/stba-black-box/outputs/logs
-eval_dir: /home/mmunia/stba-black-box/outputs/eval
+save_dir: /home/mmunia/extra/BB-Attack/outputs/adversarial_images 
+log_dir: /home/mmunia/extra/BB-Attack/outputs/logs
+eval_dir: /home/mmunia/extra/BB-Attack/outputs/eval

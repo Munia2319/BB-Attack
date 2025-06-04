@@ -5,13 +5,13 @@ export CUDA_VISIBLE_DEVICES=2
 
 # Run STBA attack with full parameter list
 python main.py \
-  --config /home/mmunia/stba-black-box/configs/default.yaml\
+  --config /home/mmunia/extra/BB-Attack/configs/default.yaml\
   --model_name Zhang2019Theoretically \
   --model_type robust \
-  --max_images 10 \
-  --lr 0.01 \
+  --max_images 1000 \
+  --lr 0.1 \
   --lambda_ 5 \
-  --sigma 0.05 \
-  --qmax 10000 \
-  --nsample 20 \
-  --adjustnum 3
+  --sigma 0.2 \
+  --qmax 1000 \
+  --nsample 10 \
+  --adjustnum 20

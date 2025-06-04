@@ -8,7 +8,7 @@ from stba.attacker import STBAttacker
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default="/home/mmunia/stba-black-box/configs/default.yaml")
+    parser.add_argument('--config', type=str, default="/home/mmunia/extra/BB-Attack/configs/default.yaml")
 
     # Optional CLI overrides
     parser.add_argument('--max_images', type=int)
