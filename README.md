@@ -53,7 +53,7 @@ Here is a visual overview of the folder structure used in this project:
 git clone https://github.com/Munia2319/BB-Attack.git
 cd BB-Attack
 
-# Create a virtual environment (optional but recommended)
+# Create a virtual environment (optional)
 python -m venv venv
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 
@@ -72,6 +72,7 @@ Before launching the attack, you can customize the parameters:
 Open the file and update the values to your needs:
 
 ````markdown
+cd stba
 nano run_attack.sh
 ````
 
