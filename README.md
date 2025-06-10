@@ -53,12 +53,9 @@ Here is a visual overview of the folder structure used in this project:
 git clone https://github.com/Munia2319/BB-Attack.git
 cd BB-Attack
 
-# Create a virtual environment (optional)
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+# Create a virtual environment 
+conda env create -f environment.yml
 
-# Install dependencies
-pip install -r requirements.txt
 ````
 
 ## Running the Attack
@@ -105,12 +102,6 @@ Then execute it:
 
 ```bash
 ./run_attack.sh
-```
-
-💡 Or simply:
-
-```bash
-bash run_attack.sh
 ```
 
 ### Option 2: Run Manually (Single Command)
