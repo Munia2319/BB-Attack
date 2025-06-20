@@ -350,3 +350,5 @@ def shift_image(x, dx, dy):
     Shift image tensor by (dx, dy) using circular padding.
     """
     return torch.roll(x, shifts=(dy, dx), dims=(2, 3))  # Note: dims=(H, W)
+def generate_shift_set(k):
+    return [(dx, dy) for dx in range(-k, k + 1) for dy in range(-k, k + 1)]

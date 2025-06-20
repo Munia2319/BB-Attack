@@ -7,10 +7,10 @@ from tqdm import tqdm
 
 from config import set_attack_config
 from model import load_clean_model
-from utils import cw_loss, flow_st, Loss_flow, calc_Freq
+from utils import cw_loss, flow_st, Loss_flow, calc_Freq, shift_image, generate_shift_set
 from utils import distance_2 as distance, set_seed, seed_data_and_model
 from torch.nn.functional import softmax
-from utils import shift_image
+
 
 
 # Suppress unnecessary warnings
@@ -65,9 +65,15 @@ class LFFA(object):
     def lffa_attack(self, args, x_high, x_low, y, t=None):
         """
         Main attack routine using NES optimization with translation-invariant perturbation.
-        """
+        """\
+
+        if args.attack_type == "ti-stba":
+    
+            num_shift = len(args.shift_set)# (2k+1)^2 has already been applied in the generation of shift_set
+        elif args.attack_type == "stba":
+            num_shift = 1
         # Total attack steps
-        num_iters = int(args.max_queries / args.n_pop)
+        num_iters = int(args.max_queries / (args.n_pop* num_shift))
         #how frequently you want to adjust the strength of flow perturbation
         adjust_step = num_iters / args.adjust_num
         # Total number of adjustment rounds
@@ -97,26 +103,11 @@ class LFFA(object):
                 [1, self.field_size[1] * self.field_size[2] * self.field_size[3]]
             ).to(device)
             # Each iteration typically performs one NES optimization step to refine mu, the latent shift vector, to generate a better adversarial flow.
-            for i in tqdm(range(num_iters), disable=True): # here num_iter= max_queries / n_pop(where n_pop is the population size: number of queries per iteration)
+            for i in tqdm(range(num_iters), disable=True): 
                 # Check attack success 
-                if args.attack_type == "ti-stba":
-                    shift_list = args.shift_set
-                    for dx, dy in shift_list:
-                        x_high_shift = shift_image(x_high, dx, dy)
-                        perturbed = flow_st(
-                            x_high_shift,
-                            torch.clamp(mu.view(self.field_size), -self.flow_bound, self.flow_bound)
-                        ) + x_low
-                        pred_adv = self.get_probs(perturbed).argmax(dim=1)
-                        self.num_queries += x_high.size(0)
-                        if pred_adv != y:
-                            print(f"Success at iteration {i+1} with shift ({dx},{dy}) after {self.num_queries} queries.")
-                            return perturbed, self.num_queries
-                else:  # STBA
-                    success_, x_adv = self.check_success(x_high, x_low, mu, y)
-                    if success_:
-                        #print(f"[✓] Success at iteration {i+1} with shift ({dx},{dy}) after {self.num_queries} queries.")
-                        return x_adv, self.num_queries
+                success_, x_adv = self.check_success(x_high, x_low, mu, y)
+                if success_:
+                    return x_adv, self.num_queries
 
                 # Dynamically adjust the flow bound
                 # Example: If flow_bounds = [2, 5] and adjust_num = 3 over 30 iterations,the flow bound will increase by 1.0 every 10 steps → [2.0 → 3.0 → 4.0 → 5.0]
@@ -310,8 +301,9 @@ if __name__ == "__main__":
     parser.add_argument('--test-num', type=int, default=1000, help='Maximum number of images to test')
     parser.add_argument('-S', '--seed', default=2023, type=int, help='Random seed')
     #parser.add_argument('--batchfile', type=str, default='./data/cifar10_clean.pth', help='Path to preprocessed image-label batch file')
-    parser.add_argument('--shift_set', type=str, default="[(0, 1)]",
-                    help='Translation shifts as list of tuples, e.g., "[(0,0), (1,0), (-1,0)]"')
+    #parser.add_argument('--shift_set', type=str, default="[(0, 1),(1,0)]",
+    #help='Translation shifts as list of tuples, e.g., "[(0,0), (1,0), (-1,0)]"')
+    parser.add_argument('--shift_radius', type=int, default=1,help='Radius k for generating a (2k+1)^2 translation-invariant shift grid')
     parser.add_argument('--n_pop', type=int, default=None, help='NES population size')
     parser.add_argument('--sigma', type=float, default=None, help='NES noise standard deviation')
     parser.add_argument('--lr', type=float, default=None, help='Learning rate for NES update')
@@ -324,7 +316,7 @@ if __name__ == "__main__":
     
 
     args = parser.parse_args()
-    args.shift_set = eval(args.shift_set)
+    args.shift_set = generate_shift_set(args.shift_radius)
     #print(f"[INFO] Final attack configuration: n_pop={args.n_pop}, sigma={args.sigma}, lr={args.lr}, flow_bounds={args.flow_bounds}, adjust_num={args.adjust_num}")
 
     # Setup config and random seed
